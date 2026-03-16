@@ -29,25 +29,37 @@ You need **macOS 13+**. Then install these one at a time — copy each command a
 xcode-select --install
 ```
 
-**Step 2.** Install Node.js 18+ (download from [nodejs.org](https://nodejs.org), or use Homebrew):
+**Step 2.** Install Node.js (recommended: current LTS such as 20 or 22; minimum supported: 18). Download from [nodejs.org](https://nodejs.org), or use Homebrew:
 
 ```bash
 brew install node
 ```
 
-**Step 3.** Install Claude Code CLI:
+Verify it's on your PATH:
+
+```bash
+node --version
+```
+
+**Step 3.** Make sure Python has `setuptools` (needed by the native module compiler). On Python 3.12+ this is missing by default:
+
+```bash
+python3 -m pip install --upgrade pip setuptools
+```
+
+**Step 4.** Install Claude Code CLI:
 
 ```bash
 npm install -g @anthropic-ai/claude-code
 ```
 
-**Step 4.** Authenticate Claude Code (follow the prompts that appear):
+**Step 5.** Authenticate Claude Code (follow the prompts that appear):
 
 ```bash
 claude
 ```
 
-**Step 5.** Verify Claude Code is working (should print `2.1.x` or higher):
+**Step 6.** Verify Claude Code is working (should print `2.1.x` or higher):
 
 ```bash
 claude --version
@@ -175,14 +187,87 @@ No telemetry, analytics, or auto-update mechanisms. All core Claude Code interac
 
 ## Troubleshooting
 
-| Problem | Fix |
-|---------|-----|
-| `npm install` fails with "gyp" or "make" errors | Run `xcode-select --install` to install Command Line Tools, then retry |
-| `npm install` fails on `node-pty` | Make sure you're on macOS with Xcode CLT installed. `node-pty` does not build on Linux/Windows. |
-| App launches but no Claude response | Check `claude --version` returns 2.1+. Run `claude` directly to verify authentication. |
-| `Alt+Space` doesn't toggle the overlay | Grant Accessibility permissions in System Settings → Privacy & Security → Accessibility |
-| Marketplace shows "Failed to load" | This is normal offline — marketplace requires internet. Core features work without it. |
-| Window is invisible / no UI | Try `Cmd+Shift+K` as an alternative toggle. Check if the app is running in the menu bar tray. |
+**`npm install` fails with "gyp" or "make" errors**
+
+Install Xcode Command Line Tools, then retry:
+
+```bash
+xcode-select --install
+```
+
+```bash
+npm install
+```
+
+**`npm install` fails with `ModuleNotFoundError: No module named 'distutils'`**
+
+Python 3.12+ removed `distutils`. Install `setuptools` to restore it:
+
+```bash
+python3 -m pip install --upgrade pip setuptools
+```
+
+```bash
+npm install
+```
+
+If that still fails, install Python 3.11 and point npm to it:
+
+```bash
+brew install python@3.11
+```
+
+```bash
+npm config set python $(brew --prefix python@3.11)/bin/python3.11
+```
+
+```bash
+npm install
+```
+
+To undo the Python override later:
+
+```bash
+npm config delete python
+```
+
+**`npm install` fails on `node-pty`**
+
+`node-pty` is a native macOS module. It does not build on Linux or Windows. Make sure you have Xcode CLT and Python setuptools installed (see above).
+
+**App launches but no Claude response**
+
+Make sure the CLI is installed and authenticated:
+
+```bash
+claude --version
+```
+
+```bash
+claude
+```
+
+**`Alt+Space` doesn't toggle the overlay**
+
+Grant Accessibility permissions: System Settings → Privacy & Security → Accessibility. You can also try the fallback shortcut **Cmd+Shift+K**.
+
+**Marketplace shows "Failed to load"**
+
+This is normal when offline. The marketplace needs internet to fetch the catalog. All core features work without it.
+
+**Window is invisible / no UI**
+
+Try **Cmd+Shift+K** as an alternative toggle. Check if the app is running in the menu bar tray.
+
+## Tested On
+
+| Component | Version |
+|-----------|---------|
+| macOS | 15.x (Sequoia) |
+| Node.js | 20.x LTS, 22.x |
+| Python | 3.12 (with setuptools installed) |
+| Electron | 33.x |
+| Claude Code CLI | 2.1.71 |
 
 ## Known Limitations
 
